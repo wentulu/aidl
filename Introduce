@@ -1,0 +1,6 @@
+AIDL
+Android interface defination language的学习基础，实现简单的AIDL。其实AIDL文件的存在是为了生成最终的binder
+
+
+
+关于binder的内容   可以查看《Android开发与艺术》这本书IPC介绍，里面有着详细的介绍。
