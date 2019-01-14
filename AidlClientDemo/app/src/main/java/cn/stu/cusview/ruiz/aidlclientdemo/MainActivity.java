@@ -79,6 +79,14 @@ public class MainActivity extends AppCompatActivity {
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
+
+            Book book = new Book("Client Book","Client",99);
+
+            try {
+                manager.addBook(book);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
