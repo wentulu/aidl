@@ -16,6 +16,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
+    IBookManager iBookManager = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,11 +29,13 @@ public class MainActivity extends AppCompatActivity {
     ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            IBookManager iBookManager = IBookManager.Stub.asInterface(service);
+            iBookManager = IBookManager.Stub.asInterface(service);
             if (iBookManager!=null){
                 try {
                     List<Book> books = iBookManager.getBookList();
                     Log.e(TAG,"Books have "+books.toString());
+
+                    iBookManager.registerNewBookListener(mINewBookArrivedInterface);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
@@ -42,7 +46,28 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceDisconnected(ComponentName name) {
 
+            iBookManager=null;
         }
     };
 
+    INewBookArrivedInterface.Stub mINewBookArrivedInterface = new INewBookArrivedInterface.Stub() {
+        @Override
+        public void onNewBookArrive(Book book) throws RemoteException {
+            Log.e(TAG,"New Book Arrived :"+book.toString());
+        }
+    };
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (iBookManager!=null && iBookManager.asBinder().isBinderAlive()){
+            try {
+                iBookManager.unregisterNewBookListener(mINewBookArrivedInterface);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+        unbindService(mServiceConnection);
+    }
 }
